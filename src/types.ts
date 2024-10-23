@@ -11,3 +11,16 @@ export type SinglePost = {
   user: User;
   likes: SinglePost[];
 };
+
+
+export type LoginData = {
+  username: string,
+  password: string
+}
+
+export type LoggedInUser = {
+  username: string,
+  jwt_token: string,
+  error: boolean,
+  id: number  
+}

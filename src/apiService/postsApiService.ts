@@ -22,4 +22,26 @@ const getNextPosts = (latestPostDate: string) => {
     })
 }
 
-export default {getLatestPosts, getNextPosts};
+const getNewerPost = (postDate: string) => {
+    return axios
+    .post(`${API_URL}/newer-then`, {
+        date: postDate
+    })
+    .then((res) => res.data)
+    .catch((err) => {
+        console.error(err);
+    })
+}
+
+const addPost = (postContent: string) => {
+    return axios
+    .post(`${API_URL}/add`, {
+        content: postContent
+    })
+    .then((res) => res.data)
+    .catch((err) => {
+        console.error(err);
+    })
+}
+
+export default {getLatestPosts, getNextPosts, getNewerPost, addPost};

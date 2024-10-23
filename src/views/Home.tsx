@@ -1,32 +1,46 @@
 import { useEffect, useState } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
 import Post from "../components/Post";
-import { SinglePost } from "../types";
+import { LoggedInUser, SinglePost } from "../types";
 import postsApiService from "../apiService/postsApiService";
+import AddPost from "../components/AddPost";
 
-const Home = () => {
+type HomeProps = {
+  user: LoggedInUser | null,
+};
+
+const Home = (props: HomeProps) => {
   const [posts, setPosts] = useState<SinglePost[]>([]);
   const [allLoaded, setAllLoaded] = useState<boolean>(true);
 
   useEffect(() => {
-    postsApiService.getLatestPosts().then((postsList) => {
-      setPosts(postsList);
+    window.scroll(0, 0);
+    postsApiService.getLatestPosts().then((data) => {
+      setPosts(data);
     });
-  }, []);
+  }, [props.user]);
 
   const getMorePosts = () => {
     postsApiService
       .getNextPosts(posts[posts.length - 1].created_at)
-      .then((postsList) => {
-        setPosts(posts.concat(postsList));
-        postsList.length > 0 ? setAllLoaded(true) : setAllLoaded(false);
+      .then((data) => {
+        setPosts(posts.concat(data));
+        data.length > 0 ? setAllLoaded(true) : setAllLoaded(false);
       });
   };
 
+  const getNewerPost = () => {
+    postsApiService.getNewerPost(posts[0].created_at)
+    .then((data)=>{
+      setPosts(data.concat(posts));
+    })
+  }
+
   return (
-    <>
-      <div className="container my-20 mx-auto">
-        <div className="postLists w-4/5 m-auto max-w-xl">
+    <div className="container my-20 mx-auto">
+      {props.user && <AddPost getNewerPost={getNewerPost}/>}
+      <div className="postLists w-4/5 m-auto max-w-xl">
+        {posts.length && (
           <InfiniteScroll
             dataLength={posts.length}
             next={getMorePosts}
@@ -64,9 +78,9 @@ const Home = () => {
               return <Post key={post.id} post={post} />;
             })}
           </InfiniteScroll>
-        </div>
+        )}
       </div>
-    </>
+    </div>
   );
 };
 
